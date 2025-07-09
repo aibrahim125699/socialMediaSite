@@ -1,5 +1,5 @@
 build/
-asio/
-crow/
+asio
+crow
 asio.hpp
 crow.h
