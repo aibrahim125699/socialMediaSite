@@ -1,5 +1,3 @@
 build/
-asio
-crow
-asio.hpp
-crow.h
+compile_commands.json
+cpp/.cache
