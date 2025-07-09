@@ -23,6 +23,26 @@ int main() {
 		return res;
 	});
 
+	CROW_ROUTE(app, "/register").methods("POST"_method)([](const crow::request& req){
+		auto body = crow::json::load(req.body);
+		if (!body) {
+			return crow::response(400, "Invalid JSON");
+		}
+
+		string username=body["username"].s();
+		string password=body["password"].s();
+
+		// ADD SAVING TO CREDENTIALS FEATURE later
+
+		return crow::response(200,username);
+		// login functionality for later
+		// if (username == USERNAME && password == PASSWORD) {
+		// 	return crow::response(200, "Login successful");
+		// } else {
+		// 	return crow::response(401, "Unauthorized");
+		// }
+	});
+
 	app.port(8080).multithreaded().run();
 
 	return 0;
