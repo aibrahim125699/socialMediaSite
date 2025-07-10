@@ -6,6 +6,7 @@
 	</head>
 
 	<body>
+		<h1>Register</h1>
 		<form id="registrationForm">
 			<p>
 				<label for="username">Username</label>
@@ -37,5 +38,18 @@
 				}).then(response => response.text()).then(data => alert("Response: " + data));
 			});
 		</script>
+
+		<h1>Login</h1>
+		<form id="loginForm">
+			<p>
+				<label for="username">Username</label>
+				<input type="text" name="username" required/>
+			</p>
+			<p>
+				<label for="password">Password</label>
+				<input type="password" name="password" required/>
+			</p>
+			<button type="submit">Login</button>
+		</form>
 	</body>
 </html>
