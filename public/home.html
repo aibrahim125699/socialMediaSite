@@ -51,5 +51,24 @@
 			</p>
 			<button type="submit">Login</button>
 		</form>
+		<script>
+			let loginForm = document.querySelector('#loginForm');
+			
+			loginForm.addEventListener('submit', function(e) {
+				e.preventDefault();
+			
+				let formData = new FormData(this);
+				let jsonData = {
+					username: formData.get('username'),
+					password: formData.get('password'),
+				};
+			
+				fetch('/login', {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(jsonData)
+				}).then(response => response.text()).then(data => alert("Response: " + data));
+			});
+		</script>
 	</body>
 </html>
