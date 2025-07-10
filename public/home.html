@@ -6,16 +6,36 @@
 	</head>
 
 	<body>
-		<form>
+		<form id="registrationForm">
 			<p>
 				<label for="username">Username</label>
-				<input type="text" name="username"/>
+				<input type="text" name="username" required/>
 			</p>
 			<p>
 				<label for="password">Password</label>
-				<input type="password" name="password"/>
+				<input type="password" name="password" required/>
 			</p>
 			<button type="submit">Register</button>
 		</form>
+		<script>
+			
+			let registrationForm = document.querySelector('#registrationForm');
+			
+			registrationForm.addEventListener('submit', function(e) {
+				e.preventDefault();
+			
+				let formData = new FormData(this);
+				let jsonData = {
+					username: formData.get('username'),
+					password: formData.get('password'),
+				};
+			
+				fetch('/register', {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(jsonData)
+				}).then(response => response.text()).then(data => alert("Response: " + data));
+			});
+		</script>
 	</body>
 </html>
