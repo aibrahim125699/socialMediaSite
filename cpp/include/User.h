@@ -10,9 +10,10 @@
 #include "AVLTree.h"
 
 class User {
+	friend class UserManager;
 private:
 	const std::string username;
-	std::vector<char> password;
+	std::string password;
 	std::string email;
 	std::vector<Post> posts;
 	AVLTree friends;
@@ -20,8 +21,7 @@ private:
 	std::deque<Notification> notifications;
 
 public:
-	User(std::string uname, std::vector<char> pass, std::string mail, std::vector<Post> postList, AVLTree friendList) : username(uname), password(pass), email(mail), posts(postList), friends(friendList) {}
-
+	User(std::string uname, std::string pass) {}
 };
 
 #endif
