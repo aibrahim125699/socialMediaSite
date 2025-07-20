@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 #include <deque>
 #include "Post.h"
 #include "Chatroom.h"
 #include "Notification.h"
+#include "AVLTree.h"
 
 class User {
 private:
@@ -15,11 +15,13 @@ private:
 	std::vector<char> password;
 	std::string email;
 	std::vector<Post> posts;
-	std::unordered_set<User> friends;
+	AVLTree friends;
 	std::unordered_map<int, Chatroom> chatrooms;
 	std::deque<Notification> notifications;
 
 public:
+	User(std::string uname, std::vector<char> pass, std::string mail, std::vector<Post> postList, AVLTree friendList) : username(uname), password(pass), email(mail), posts(postList), friends(friendList) {}
+
 };
 
 #endif
