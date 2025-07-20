@@ -2,11 +2,8 @@
 #include <fstream>
 #include <sodium.h>
 #include <string>
-#include <utility>
-
+#include "include/UserManager.h"
 using namespace std;
-
-const string user_db = "users.json";
 
 string fileToString(const string& path) {
 	ifstream file(path);
@@ -15,22 +12,6 @@ string fileToString(const string& path) {
 	stringstream buffer;
 	buffer << file.rdbuf();
 	return buffer.str();
-}
-
-void save_users(const crow::json::wvalue& users, const std::string& filename) {
-	ofstream file(filename);
-	if (file) {
-		file << users.dump();
-		file.flush();
-		file.close();
-	}
-}
-
-crow::json::rvalue load_users(const std::string& filename) {
-    ifstream file(filename);
-    stringstream buffer;
-    buffer << file.rdbuf();
-    return crow::json::load(buffer.str());
 }
 
 string hashPassword(const string& password) {
@@ -49,6 +30,7 @@ string hashPassword(const string& password) {
 
 int main() {
 	crow::SimpleApp app;
+	UserManager userManager;
 
 	CROW_ROUTE(app, "/")([](){
 		string html = fileToString("../public/home.html");
@@ -59,7 +41,7 @@ int main() {
 		return res;
 	});
 
-	CROW_ROUTE(app, "/register").methods("POST"_method)([](const crow::request& req){
+	CROW_ROUTE(app, "/register").methods("POST"_method)([&](const crow::request& req){
 		//recieving credentials and hashing password
 		auto body = crow::json::load(req.body);
 		if (!body) {
@@ -70,64 +52,39 @@ int main() {
 		string password=body["password"].s();
 		string password_hashed = hashPassword(password);
 
-		// loading user database
-		crow::json::wvalue users_json;
-		if (ifstream(user_db)) {
-			users_json = load_users(user_db);
-		}
-
-
-		// check if username already exists
-        	auto& users = users_json["users"];
-
-		for (size_t i=0; i < users.size(); ++i) {
-			string inputted_username = crow::json::load(users[i]["username"].dump()).s();
-			if (inputted_username == username) {
-				return crow::response(400, "Username not available");
-			}
-		}
-
-		// save new user
-		crow::json::wvalue new_user;
-		new_user["username"] = username;
-		new_user["password"] = password_hashed;
-
-		users[users.size()] = std::move(new_user);
-		cout << "users_json = " << users_json.dump() << "\n";
-		save_users(users_json, user_db);
-		return crow::response(200,password_hashed);
-		// login functionality for later
-		// if (username == USERNAME && password == PASSWORD) {
-		// 	return crow::response(200, "Login successful");
-		// } else {
-		// 	return crow::response(401, "Unauthorized");
-		// }
-	});
-
-	CROW_ROUTE(app, "/login").methods("POST"_method)([](const crow::request& req){
-		auto body = crow::json::load(req.body);
-
-		string username=body["username"].s();
-		string password=body["password"].s();
-
-		crow::json::wvalue users_json = load_users(user_db);
-		auto& users = users_json["users"];
-		string hashedPassword;
-
-		for (size_t i=0; i < users.size(); ++i) {
-			string current = crow::json::load(users[i]["username"].dump()).s();
-			if (current == username) {
-				hashedPassword = crow::json::load(users[i]["password"].dump()).s();
-				break;
-			}
-		}
-
-		if (crypto_pwhash_str_verify(hashedPassword.c_str(), password.c_str(), password.length()) == 0 ) {
-			return crow::response(200, "Logged in!");
+		if (!userManager.checkExistence(username)) {
+			userManager.registerUser(username, password_hashed);
 		} else {
-			return crow::response(400, "Invalid login");
+			return crow::response(400, "Username already in use.");
 		}
+
+		return crow::response(200,password_hashed);
 	});
+
+	// CROW_ROUTE(app, "/login").methods("POST"_method)([](const crow::request& req){
+	// 	auto body = crow::json::load(req.body);
+
+	// 	string username=body["username"].s();
+	// 	string password=body["password"].s();
+
+	// 	crow::json::wvalue users_json = load_users(user_db);
+	// 	auto& users = users_json["users"];
+	// 	string hashedPassword;
+
+	// 	for (size_t i=0; i < users.size(); ++i) {
+	// 		string current = crow::json::load(users[i]["username"].dump()).s();
+	// 		if (current == username) {
+	// 			hashedPassword = crow::json::load(users[i]["password"].dump()).s();
+	// 			break;
+	// 		}
+	// 	}
+
+	// 	if (crypto_pwhash_str_verify(hashedPassword.c_str(), password.c_str(), password.length()) == 0 ) {
+	// 		return crow::response(200, "Logged in!");
+	// 	} else {
+	// 		return crow::response(400, "Invalid login");
+	// 	}
+	// });
 
 	app.port(8080).multithreaded().run();
 
