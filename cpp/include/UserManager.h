@@ -46,7 +46,6 @@ public:
 
 	void registerUser(std::string username, std::string password) {
         	auto& users = credentials_json["users"];
-		User user = createUser(username, password);
 		
 		crow::json::wvalue new_user;
 		new_user["username"] = username;
@@ -57,6 +56,27 @@ public:
 		saveUser(credentials_json, credentials_db);
 
 		//also should generate other files for friends, notifications etc.
+	}
+
+	bool validUser(std::string username, std::string password) {
+		auto& users = credentials_json["users"];
+
+		std::string hashedPassword;
+
+		for (size_t i=0; i < users.size(); ++i) {
+			std::string current = crow::json::load(users[i]["username"].dump()).s();
+			if (current == username) {
+				hashedPassword = crow::json::load(users[i]["password"].dump()).s();
+				break;
+			}
+		}
+
+		if (crypto_pwhash_str_verify(hashedPassword.c_str(), password.c_str(), password.length()) == 0 ) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	// should perform hashing here instead of main.cpp
