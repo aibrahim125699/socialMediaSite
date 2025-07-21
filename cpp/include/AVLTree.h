@@ -146,11 +146,11 @@ private:
 		return node;
 	}
 
-	void traverseInorder(Node* node) {
+	void traverseInorder(Node* node, std::vector<std::string>& userList) {
 		if (node != nullptr) {
-			traverseInorder(node->left);
-			std::cout << node->username << " ";
-			traverseInorder(node->right);
+			traverseInorder(node->left, userList);
+			userList.push_back(node->username);
+			traverseInorder(node->right, userList);
 		}
 	}
 
@@ -181,8 +181,9 @@ public:
 		return false;
 	}
 
-	void printInorder() {
-		traverseInorder(root);
-		std::cout << std::endl;
+	std::vector<std::string> inorderTraversal() {
+		std::vector<std::string> userList;
+		traverseInorder(root, userList);
+		return userList;
 	}
 };
