@@ -59,4 +59,27 @@ public:
 		}
 		return;
 	}
+
+	static vector<User*> findMutuals(string username1, string username2) {
+		User* user1 = UserManager::getUser(username1);
+		User* user2 = UserManager::getUser(username2);
+
+		if (!user1 || !user2) {
+			return {};
+		}
+
+		vector<string> friendsList = user1->friends.inorderTraversal();
+		vector<User*> mutuals;
+
+		for (size_t i = 0; i < friendsList.size(); ++i) {
+			string currentFriendUsername = friendsList[i];
+			bool found = user2->friends.search(currentFriendUsername) ? true : false;
+
+			if (found) {
+				User* currentFriend = UserManager::getUser(currentFriendUsername);
+				mutuals.push_back(currentFriend);
+			}
+		}
+		return mutuals;
+	}
 };
