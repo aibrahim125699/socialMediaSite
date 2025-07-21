@@ -50,41 +50,31 @@ int main() {
 
 		string username=body["username"].s();
 		string password=body["password"].s();
-		string password_hashed = hashPassword(password);
+		string passwordHashed = hashPassword(password);
 
-		if (!userManager.checkExistence(username)) {
-			userManager.registerUser(username, password_hashed);
+		if (!userManager.userExists(username)) {
+			userManager.registerUser(username, passwordHashed);
 		} else {
 			return crow::response(400, "Username already in use.");
 		}
 
-		return crow::response(200,password_hashed);
+		return crow::response(200,passwordHashed);
 	});
 
-	// CROW_ROUTE(app, "/login").methods("POST"_method)([](const crow::request& req){
-	// 	auto body = crow::json::load(req.body);
+	CROW_ROUTE(app, "/login").methods("POST"_method)([&](const crow::request& req){
 
-	// 	string username=body["username"].s();
-	// 	string password=body["password"].s();
+		auto body = crow::json::load(req.body);
 
-	// 	crow::json::wvalue users_json = load_users(user_db);
-	// 	auto& users = users_json["users"];
-	// 	string hashedPassword;
+		string username=body["username"].s();
+		string password=body["password"].s();
 
-	// 	for (size_t i=0; i < users.size(); ++i) {
-	// 		string current = crow::json::load(users[i]["username"].dump()).s();
-	// 		if (current == username) {
-	// 			hashedPassword = crow::json::load(users[i]["password"].dump()).s();
-	// 			break;
-	// 		}
-	// 	}
-
-	// 	if (crypto_pwhash_str_verify(hashedPassword.c_str(), password.c_str(), password.length()) == 0 ) {
-	// 		return crow::response(200, "Logged in!");
-	// 	} else {
-	// 		return crow::response(400, "Invalid login");
-	// 	}
-	// });
+		if (userManager.validUser(username, password)) {
+			return crow::response(200, "Logged in!");
+		} else {
+			return crow::response(400, "Invalid username or password");
+		}
+	
+	});
 
 	app.port(8080).multithreaded().run();
 

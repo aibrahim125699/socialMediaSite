@@ -6,19 +6,44 @@
 #include "Post.h"
 #include "Notification.h"
 #include "AVLTree.h"
+#include <set>
+using namespace std;
 
 class User {
-	friend class UserManager;
 private:
-	const std::string username;
-	std::string password;
-	std::string email;
-	std::vector<Post> posts;
-	AVLTree friends;
-	std::deque<Notification> notifications;
+	string username;
+	string password;
+	vector<Post> posts;
+	deque<Notification> notifications;
 
 public:
-	User(std::string uname, std::string pass) {}
+	AVLTree friends;
+	set<User*> sentRequests;
+	set<User*> receivedRequests;
+	
+	User() = default;
+
+	User(string uname, string pass) : username(uname), password(pass) {}
+
+	// User(const User& other) : username(other.username), password(other.password), posts(other.posts), friends(other.friends), notifications(other.notifications), sentRequests(other.sentRequests), recievedRequests(other.recievedRequests) {}
+
+	// ~User()
+	
+	string getPassword() {
+		return password;
+	}
+
+	string getUsername() {
+		return username;
+	}
+
+	void addFriend(User* newFriend) {
+		friends.insert(newFriend->getUsername());
+	}
+
+	void deleteFriend(User* formerFriend) {
+		friends.remove(formerFriend->getUsername());
+	}
 };
 
 #endif
