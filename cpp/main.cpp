@@ -3,6 +3,7 @@
 #include <sodium.h>
 #include <string>
 #include "include/UserManager.h"
+#include "include/AuthService.h"
 using namespace std;
 
 string fileToString(const string& path) {
@@ -14,23 +15,9 @@ string fileToString(const string& path) {
 	return buffer.str();
 }
 
-string hashPassword(const string& password) {
-	if (sodium_init()  < 0){
-		throw runtime_error("Failed to initialize libsodium");
-	}
-
-	char hashed[crypto_pwhash_STRBYTES];
-
-	if (crypto_pwhash_str(hashed, password.c_str(), password.size(), crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE)) {
-		throw runtime_error("Hashing failed -- not enough memory");
-	}
-
-	return string(hashed);
-}
 
 int main() {
 	crow::SimpleApp app;
-	UserManager userManager;
 
 	CROW_ROUTE(app, "/")([](){
 		string html = fileToString("../public/home.html");
@@ -50,15 +37,14 @@ int main() {
 
 		string username=body["username"].s();
 		string password=body["password"].s();
-		string passwordHashed = hashPassword(password);
 
-		if (!userManager.userExists(username)) {
-			userManager.registerUser(username, passwordHashed);
+		if (!UserManager::userExists(username)) {
+			UserManager::registerUser(username, password);
 		} else {
 			return crow::response(400, "Username already in use.");
 		}
 
-		return crow::response(200,passwordHashed);
+		return crow::response(200,password);
 	});
 
 	CROW_ROUTE(app, "/login").methods("POST"_method)([&](const crow::request& req){
@@ -67,11 +53,16 @@ int main() {
 
 		string username=body["username"].s();
 		string password=body["password"].s();
-
-		if (userManager.validUser(username, password)) {
-			return crow::response(200, "Logged in!");
+		User* user = UserManager::getUser(username);
+		
+		if (user && AuthService::verify(user->getPassword(), password)) {
+			std::string token = AuthService::createSession(user->getUsername());
+			crow::json::wvalue response_json;
+			response_json["token"] = token;
+			response_json["username"] = user->getUsername();
+			return crow::response(200, response_json);
 		} else {
-			return crow::response(400, "Invalid username or password");
+            		return crow::response(401, "{\"error\": \"Invalid credentials\"}");
 		}
 	
 	});
