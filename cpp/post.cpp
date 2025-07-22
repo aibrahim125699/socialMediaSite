@@ -11,6 +11,7 @@ private:
     static int globalPostId;
     int postId;
     string textcontent;
+    time_t timestamp;
     string authorUsername;
     struct tm dateTime;
     int likes;
@@ -51,6 +52,7 @@ post::post(const string& content, const string& author) {
     textcontent = content;
     authorUsername = author;
     time_t now = time(0);
+    timestamp = time(0)
     dateTime = *localtime(&now);
     likes = 0;
     dislikes = 0;
