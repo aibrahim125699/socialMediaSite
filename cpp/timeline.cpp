@@ -97,23 +97,9 @@ void timelineManager::displayTimeline(const vector<post*>& timeline, int maxPost
     }
 }
 
-vector<post*> timelineManager::searchPosts(const string& keyword) {
-    vector<post*> results;
-    for (int i = 0; i < allPosts.size(); i++) {
-        if (allPosts[i] != nullptr) {
-            string content = allPosts[i]->getContent();
-            if (content.find(keyword) != string::npos) {
-                results.push_back(allPosts[i]);
-            }
-        }
-    }
-    return results;
-}
 
 vector<post*> timelineManager::getRecentPosts(int count) {
     vector<post*> recent = allPosts;
-    
-    // Sort by timestamp (newest first) - bubble sort
     for (int i = 0; i < recent.size() - 1; i++) {
         for (int j = i + 1; j < recent.size(); j++) {
             if (recent[i]->getTimestamp() < recent[j]->getTimestamp()) {
