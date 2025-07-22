@@ -82,4 +82,29 @@ public:
 		}
 		return mutuals;
 	}
+
+	static vector<User*> suggestFriends(string username) {
+		User* user = UserManager::getUser(username);
+
+		if (!user) {
+			return {};
+		}
+
+		std::set<User*> suggestionSet;
+		std::vector<string> myFriends = user->friends.inorderTraversal();
+		for (string friend_of_mine : myFriends) {
+			std::vector<string> friends_of_friend = UserManager::getUser(friend_of_mine)->friends.inorderTraversal();
+
+			for (string potential_suggestion : friends_of_friend) {
+				bool is_myself = (potential_suggestion==username);
+				bool is_already_my_friend = user->friends.search(potential_suggestion);
+
+				if (!is_myself && !is_already_my_friend) {
+					suggestionSet.insert(UserManager::getUser(potential_suggestion));
+				}
+			}
+		}
+
+		return std::vector<User*>(suggestionSet.begin(), suggestionSet.end());
+	}
 };
