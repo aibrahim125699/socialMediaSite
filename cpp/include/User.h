@@ -13,13 +13,13 @@ class User {
 private:
 	string username;
 	string password;
-	vector<Post> posts;
 	deque<Notification> notifications;
 
 public:
 	AVLTree friends;
 	set<User*> sentRequests;
 	set<User*> receivedRequests;
+	vector<Post*> posts;
 	
 	User() = default;
 
