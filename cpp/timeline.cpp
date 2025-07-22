@@ -98,21 +98,3 @@ void timelineManager::displayTimeline(const vector<post*>& timeline, int maxPost
 }
 
 
-vector<post*> timelineManager::getRecentPosts(int count) {
-    vector<post*> recent = allPosts;
-    for (int i = 0; i < recent.size() - 1; i++) {
-        for (int j = i + 1; j < recent.size(); j++) {
-            if (recent[i]->getTimestamp() < recent[j]->getTimestamp()) {
-                post* temp = recent[i];
-                recent[i] = recent[j];
-                recent[j] = temp;
-            }
-        }
-    }
-    
-    vector<post*> result;
-    for (int i = 0; i < count && i < recent.size(); i++) {
-        result.push_back(recent[i]);
-    }
-    return result;
-}
