@@ -40,6 +40,7 @@ int main() {
 
 		if (!UserManager::userExists(username)) {
 			UserManager::registerUser(username, password);
+			return crow::response(200, AuthService::hashPassword(password));
 		} else {
 			return crow::response(400, "Username already in use.");
 		}
